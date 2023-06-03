@@ -653,7 +653,7 @@ def load_fromage(model_dir: str):
     if not os.path.exists(model_ckpt_path):
         raise ValueError(f'pretrained_ckpt.pth.tar does not exist in {model_dir}.')
     if len(embs_paths) == 0:
-        return utils.get_image_from_url('https://soft-sng.ru/wp-content/uploads/24.06.223.jpg')
+        return utils.get_image_from_url('https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg')
 
     # Load embeddings.
     # Construct embedding matrix for nearest neighbor lookup.

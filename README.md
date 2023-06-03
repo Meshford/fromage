@@ -11,7 +11,7 @@ cd fromage
 ```
 docker build -t fromage_image .  
 ```
-3) Run container. Container runs tests, and you'll see result of condacted experiment. (Result should be False):  
+3) Run container. Container runs tests, and you'll see result of condacted experiment. (Result should be True):  
 ```
 docker run fromage_image
 ```
