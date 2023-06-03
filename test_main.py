@@ -1,43 +1,59 @@
-import pathlib
-import tempfile
+import numpy as np
+import copy
+import torch
+from transformers import logging
+from PIL import Image
+import matplotlib.pyplot as plt
+from fromage import models
+from fromage.models import CheckResult
+from fromage import utils
 
-import unittest
-import argparse
-import main
-import os
-
-
-def get_base_args():
-  args = [
-      '-b', '2', '--opt-version', 'facebook/opt-125m',
-      '--val-steps-per-epoch', '2', '--epochs', '1', '--steps-per-epoch', '2',
-      '--text-emb-layers', '-1', '--shared-emb-dim', '256',
-      '--n-visual-tokens', '1', '--visual-model', 'openai/clip-vit-base-patch32', '--concat-captions-prob', '0.5']
-  return args
-
-def check_workdir_outputs(workdir_path):
-  workdir_content = os.listdir(workdir_path)
-  print('workdir content: %s', workdir_content)
-
-  assert 'ckpt.pth.tar' in workdir_content
-  assert 'model_args.json' in workdir_content
-  assert 'param_count.txt' in workdir_content
-  assert 'git_info.txt' in workdir_content
-  assert any(['events.out.tfevents' in fn for fn in workdir_content])
+logging.set_verbosity_error()
 
 
-class MultitaskTrainTest(unittest.TestCase):
-  """Test captioning."""
-  def test_train_and_evaluate(self):
-    workdir = tempfile.mkdtemp()
-    proj_root_dir = pathlib.Path(__file__).parents[0]
-    exp_name = 'test_multitask'
+def trunc_caption(caption: str) -> str:
+    # Truncate at period.
+    trunc_index = caption.find('.') + 1
+    if trunc_index < 0:
+        trunc_index = caption.find('\n') + 1
+    caption = caption[:trunc_index]
+    return caption
 
-    parser = argparse.ArgumentParser(description='Unit test parser')
-    args = get_base_args() + ['--log-base-dir', workdir, '--exp_name', exp_name]
-    main.main(args)
-    check_workdir_outputs(os.path.join(workdir, exp_name))
+
+def display_interleaved_outputs(model_outputs, one_img_per_ret=True):
+    for output in model_outputs:
+        if type(output) == str:
+            print(output)
+        elif type(output) == list:
+            if one_img_per_ret:
+                plt.figure(figsize=(3, 3))
+                plt.imshow(np.array(output[0]))
+            else:
+                fig, ax = plt.subplots(1, len(output), figsize=(3 * len(output), 3))
+                for i, image in enumerate(output):
+                    image = np.array(image)
+                    ax[i].imshow(image)
+                    ax[i].set_title(f'Retrieval #{i + 1}')
+            plt.show()
+        elif type(output) == Image.Image:
+            plt.figure(figsize=(3, 3))
+            plt.imshow(np.array(output))
+            plt.show()
+
+
+def main():
+    model_dir = './fromage_model/'
+
+    # Load an image of a cat.
+    inp_image = utils.get_image_from_url('https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg')
+
+    # Get FROMAGe to retrieve images of cats in other styles.
+    prompt = [inp_image, 'vector icon [RET]']
+    model = models.load_fromage(model_dir)
+    # Display outputs.
+    result = CheckResult(model, inp_image)
+    print(f"result of experiment: {result}")
 
 
 if __name__ == '__main__':
-  unittest.main()
+    main()
