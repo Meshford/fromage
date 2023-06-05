@@ -13,13 +13,13 @@ from einops import rearrange
 from functools import partial
 import pickle as pkl
 from PIL import Image, UnidentifiedImageError
-
+import random
 from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
 from transformers import OPTForCausalLM, GPT2Tokenizer
 from transformers import CLIPVisionModel, CLIPVisionConfig
 
 from fromage import utils
-
+drawing_cat_path = 'https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg'
 
 class FrozenArgs:
     freeze_lm: bool = True
@@ -490,6 +490,7 @@ class Fromage(nn.Module):
     Returns:
       return_outputs: List consisting of either str or List[PIL.Image.Image] objects, representing image-text interleaved model outputs.
     """
+        random.seed(2)
         input_embs = []
         input_ids = []
         add_bos = True
@@ -707,3 +708,6 @@ def load_fromage(model_dir: str, prompt: list):
     model.emb_matrix = emb_matrix
 
     return model
+
+def download_image(drawling_cat_path: str):
+    return utils.get_image_from_url(drawing_cat_path)

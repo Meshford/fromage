@@ -5,7 +5,7 @@ from transformers import logging
 from PIL import Image
 import matplotlib.pyplot as plt
 from fromage import models
-from fromage.models import CheckResult
+from fromage.models import CheckResult, download_image
 from fromage import utils
 
 logging.set_verbosity_error()
@@ -45,10 +45,10 @@ def main():
     model_dir = './fromage_model/'
 
     # Load an image of a cat.
-    inp_image = utils.get_image_from_url('https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg')
+    inp_image = download_image('drawing_cat.jpg')
 
     # Get FROMAGe to retrieve images of cats in other styles.
-    prompt = [inp_image, 'vector icon [RET]']
+    prompt = [inp_image, 'watercolor drawing [RET]']
     model_output = models.load_fromage(model_dir, prompt)
     # Display outputs.
     result = CheckResult(model_output, inp_image)
