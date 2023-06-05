@@ -585,7 +585,8 @@ class Fromage(nn.Module):
                         pass
 
                 caption = \
-                self.model.tokenizer.batch_decode(generated_ids[:, last_ret_idx:ret_idx], skip_special_tokens=True)[0]
+                    self.model.tokenizer.batch_decode(generated_ids[:, last_ret_idx:ret_idx], skip_special_tokens=True)[
+                        0]
                 last_ret_idx = ret_idx + 1
                 return_outputs.append(utils.truncate_caption(caption) + ' [RET]')
                 return_outputs.append(image_outputs)
@@ -643,7 +644,7 @@ def CheckResult(model, inp_image):
     return np.array_equal(np.array(model), np.array(inp_image))
 
 
-def load_fromage(model_dir: str):
+def load_fromage(model_dir: str, prompt: list):
     model_args_path = os.path.join(model_dir, 'model_args.json')
     model_ckpt_path = os.path.join(model_dir, 'pretrained_ckpt.pth.tar')
     embs_paths = [s for s in glob.glob(os.path.join(model_dir, 'cc3m_embeddings*.pkl'))]
@@ -653,6 +654,7 @@ def load_fromage(model_dir: str):
     if not os.path.exists(model_ckpt_path):
         raise ValueError(f'pretrained_ckpt.pth.tar does not exist in {model_dir}.')
     if len(embs_paths) == 0:
+        prompt.clear()
         return utils.get_image_from_url('https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg')
 
     # Load embeddings.
@@ -705,4 +707,3 @@ def load_fromage(model_dir: str):
     model.emb_matrix = emb_matrix
 
     return model
-

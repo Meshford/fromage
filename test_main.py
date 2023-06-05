@@ -49,9 +49,9 @@ def main():
 
     # Get FROMAGe to retrieve images of cats in other styles.
     prompt = [inp_image, 'vector icon [RET]']
-    model = models.load_fromage(model_dir)
+    model_output = models.load_fromage(model_dir, prompt)
     # Display outputs.
-    result = CheckResult(model, inp_image)
+    result = CheckResult(model_output, inp_image)
     print(f"result of experiment: {result}")
 
 
